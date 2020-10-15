@@ -1,6 +1,7 @@
 package com.example.android.guesstheword.screens.game
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
@@ -11,7 +12,9 @@ class GameViewModel : ViewModel() {
 
     // The current score
     // Nullable, Start with Null Value
-    var score = MutableLiveData<Int>()
+    private val privateScore = MutableLiveData<Int>()
+    val score : LiveData<Int>
+        get() = privateScore
 
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
@@ -63,13 +66,13 @@ class GameViewModel : ViewModel() {
 
     fun onSkip() {
         // LiveData는 Nullable
-        score.value = (score.value)?.minus(1)
+        privateScore.value = (privateScore.value)?.minus(1)
         nextWord()
     }
 
     fun onCorrect() {
         // LiveData는 Nullable
-        score.value = (score.value)?.plus(1)
+        privateScore.value = (privateScore.value)?.plus(1)
         nextWord()
     }
 
@@ -78,6 +81,6 @@ class GameViewModel : ViewModel() {
         resetList()
         nextWord()
         //LiveData 초기화, null로 시작하니까
-        score.value = 0
+        privateScore.value = 0
     }
 }
