@@ -83,6 +83,10 @@ class GameFragment : Fragment() {
             }
         })
 
+        viewModel.time.observe(viewLifecycleOwner, Observer { newTime->
+            binding.timerText.text = newTime
+        })
+
         updateScoreText()
         updateWordText()
 

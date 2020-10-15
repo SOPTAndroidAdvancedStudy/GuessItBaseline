@@ -1,5 +1,7 @@
 package com.example.android.guesstheword.screens.game
 
+import android.os.CountDownTimer
+import android.text.format.DateUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -22,8 +24,43 @@ class GameViewModel : ViewModel() {
     val isFinish : LiveData<Boolean>
         get() = privateIsFinish
 
+//    private val privateTimeLong = MutableLiveData<Long>()
+//    val timeLong : LiveData<Long>
+//        get() = privateTimeLong
+
+    private val privateTime = MutableLiveData<String>()
+    val time : LiveData<String>
+        get() = privateTime
+
+    private var timeLimit : Long = 0
+
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
+
+    // Timer
+    private val timer : CountDownTimer
+
+    //생성 시 작동하는 함수
+    init {
+        resetList()
+        nextWord()
+        //LiveData 초기화, null로 시작하니까
+        privateScore.value = 0
+
+        timer = object : CountDownTimer(COUNTDOWN_TIME, ONE_SECOND) {
+            override fun onTick(millisUntilFinished: Long) {
+                timeLimit = millisUntilFinished / ONE_SECOND
+                privateTime.value = DateUtils.formatElapsedTime(timeLimit)
+            }
+
+            override fun onFinish() {
+                if(wordList.isNotEmpty()) {
+                    privateIsFinish.value = true
+                }
+            }
+        }
+        timer.start()
+    }
 
     /**
      * Resets the list of words and randomizes the order
@@ -63,6 +100,7 @@ class GameViewModel : ViewModel() {
         //Select and remove a word from the list
         if (wordList.isEmpty()) {
             privateIsFinish.value = true
+            resetList()
         } else {
             word = wordList.removeAt(0)
         }
@@ -86,11 +124,19 @@ class GameViewModel : ViewModel() {
         privateIsFinish.value = false
     }
 
-    //생성 시 작동하는 함수
-    init {
-        resetList()
-        nextWord()
-        //LiveData 초기화, null로 시작하니까
-        privateScore.value = 0
+    override fun onCleared() {
+        super.onCleared()
+        timer.cancel()
     }
+
+    companion object {
+        // These represent different important times
+        // This is when the game is over
+        const val DONE = 0L
+        // This is the number of milliseconds in a second
+        const val ONE_SECOND = 1000L
+        // This is the total time of the game
+        const val COUNTDOWN_TIME = 5000L
+    }
+
 }
