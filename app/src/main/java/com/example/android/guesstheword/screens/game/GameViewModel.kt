@@ -1,6 +1,5 @@
 package com.example.android.guesstheword.screens.game
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,8 +12,15 @@ class GameViewModel : ViewModel() {
     // The current score
     // Nullable, Start with Null Value
     private val privateScore = MutableLiveData<Int>()
-    val score : LiveData<Int>
+    // 외부에 공개하는 Property는 값이 변경되지 않는 것으로
+    // 내부에서는 privateScore의 값을 활용하여 넘겨준다
+    val score: LiveData<Int>
         get() = privateScore
+
+    // 게임이 종료되었는 지 여부에 관한 Boolean value
+    private val privateIsFinish = MutableLiveData<Boolean>()
+    val isFinish : LiveData<Boolean>
+        get() = privateIsFinish
 
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
@@ -56,7 +62,7 @@ class GameViewModel : ViewModel() {
     private fun nextWord() {
         //Select and remove a word from the list
         if (wordList.isEmpty()) {
-            //gameFinished()
+            privateIsFinish.value = true
         } else {
             word = wordList.removeAt(0)
         }
@@ -74,6 +80,10 @@ class GameViewModel : ViewModel() {
         // LiveData는 Nullable
         privateScore.value = (privateScore.value)?.plus(1)
         nextWord()
+    }
+
+    fun onGameFinishComplete() {
+        privateIsFinish.value = false
     }
 
     //생성 시 작동하는 함수

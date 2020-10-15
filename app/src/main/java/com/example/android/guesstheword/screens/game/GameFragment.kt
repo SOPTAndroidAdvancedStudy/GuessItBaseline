@@ -73,6 +73,16 @@ class GameFragment : Fragment() {
             binding.scoreText.text = newScore.toString()
         })
 
+        // 게임 종료될 때 gameFinish 호출
+        // 게임이 끝났으면 isFinish의 상태를 false로 바꾼다
+        // 새로 게임을 시작하면 그 게임은 끝난게 아니니까
+        viewModel.isFinish.observe(viewLifecycleOwner, Observer { isFinished ->
+            if(isFinished) {
+                gameFinished()
+                viewModel.onGameFinishComplete()
+            }
+        })
+
         updateScoreText()
         updateWordText()
 
