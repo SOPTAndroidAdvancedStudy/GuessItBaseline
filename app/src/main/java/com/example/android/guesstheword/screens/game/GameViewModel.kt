@@ -4,12 +4,13 @@ import android.os.CountDownTimer
 import android.text.format.DateUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 
 class GameViewModel : ViewModel() {
 
     // The current word
-    var word = ""
+    //var word = ""
 
     // The current score
     // Nullable, Start with Null Value
@@ -24,15 +25,18 @@ class GameViewModel : ViewModel() {
     val isFinish : LiveData<Boolean>
         get() = privateIsFinish
 
-//    private val privateTimeLong = MutableLiveData<Long>()
-//    val timeLong : LiveData<Long>
-//        get() = privateTimeLong
+    private val privateWord = MutableLiveData<String>()
+    val word : LiveData<String>
+        get() = privateWord
 
-    private val privateTime = MutableLiveData<String>()
-    val time : LiveData<String>
-        get() = privateTime
+    private val privateTimeLong = MutableLiveData<Long>()
+    val timeLong : LiveData<Long>
+        get() = privateTimeLong
 
-    private var timeLimit : Long = 0
+    // LiveData<Int> -> LiveData<String>
+    val time = Transformations.map(privateTimeLong) { time->
+        DateUtils.formatElapsedTime(time)
+    }
 
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
@@ -49,8 +53,8 @@ class GameViewModel : ViewModel() {
 
         timer = object : CountDownTimer(COUNTDOWN_TIME, ONE_SECOND) {
             override fun onTick(millisUntilFinished: Long) {
-                timeLimit = millisUntilFinished / ONE_SECOND
-                privateTime.value = DateUtils.formatElapsedTime(timeLimit)
+                privateTimeLong.value = millisUntilFinished / ONE_SECOND
+                //privateTime.value = DateUtils.formatElapsedTime(timeLimit)
             }
 
             override fun onFinish() {
@@ -102,7 +106,7 @@ class GameViewModel : ViewModel() {
             privateIsFinish.value = true
             resetList()
         } else {
-            word = wordList.removeAt(0)
+            privateWord.value = wordList.removeAt(0)
         }
     }
 

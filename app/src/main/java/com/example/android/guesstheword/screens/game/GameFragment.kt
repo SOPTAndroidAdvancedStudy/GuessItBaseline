@@ -54,41 +54,26 @@ class GameFragment : Fragment() {
         )
         Log.d("ViewModel", "ViewModel Get from activity")
 
+        //DataBinding: xml의 data와 viewModel 연결
+        binding.gameViewModel = viewModel
+        //layout에 직접 LiveData 연결
+        binding.lifecycleOwner = this
+
 //        resetList()
 //        nextWord()
         //ViewModel이 만들어졌을 때 resetList가 실행 -> Not Fragment Createed
 
-        binding.correctButton.setOnClickListener {
-            viewModel.onCorrect()
-            updateScoreText()
-            updateWordText()
-        }
-        binding.skipButton.setOnClickListener {
-            viewModel.onSkip()
-            updateScoreText()
-            updateWordText()
-        }
-
-        viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
-            binding.scoreText.text = newScore.toString()
-        })
-
-        // 게임 종료될 때 gameFinish 호출
-        // 게임이 끝났으면 isFinish의 상태를 false로 바꾼다
-        // 새로 게임을 시작하면 그 게임은 끝난게 아니니까
+        /*
+        게임 종료될 때 gameFinish 호출
+        게임이 끝났으면 isFinish의 상태를 false로 바꾼다
+        새로 게임을 시작하면 그 게임은 끝난게 아니니까
+        */
         viewModel.isFinish.observe(viewLifecycleOwner, Observer { isFinished ->
-            if(isFinished) {
+            if (isFinished) {
                 gameFinished()
                 viewModel.onGameFinishComplete()
             }
         })
-
-        viewModel.time.observe(viewLifecycleOwner, Observer { newTime->
-            binding.timerText.text = newTime
-        })
-
-        updateScoreText()
-        updateWordText()
 
         return binding.root
 
@@ -108,7 +93,7 @@ class GameFragment : Fragment() {
     /** Methods for updating the UI **/
 
     private fun updateWordText() {
-        binding.wordText.text = viewModel.word
+        binding.wordText.text = viewModel.word.value
 
     }
 
