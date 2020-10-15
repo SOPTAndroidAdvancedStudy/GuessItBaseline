@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
@@ -67,6 +68,14 @@ class GameFragment : Fragment() {
             updateScoreText()
             updateWordText()
         }
+
+        viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
+            binding.scoreText.text = newScore.toString()
+        })
+
+        updateScoreText()
+        updateWordText()
+
         return binding.root
 
     }
@@ -77,7 +86,7 @@ class GameFragment : Fragment() {
      */
     private fun gameFinished() {
         val action = GameFragmentDirections.actionGameToScore(
-                viewModel.score
+                viewModel.score.value ?: 0
         )
         findNavController(this).navigate(action)
     }
@@ -90,8 +99,7 @@ class GameFragment : Fragment() {
     }
 
     private fun updateScoreText() {
-        binding.scoreText.text = viewModel
-                .score
-                .toString()
+        binding.scoreText.text = viewModel.score
+                .value.toString()
     }
 }
